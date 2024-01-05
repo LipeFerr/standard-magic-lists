@@ -20,6 +20,28 @@ body {
     align-items: center;
     padding-left: 10px;
   }
+
+  .navbar-center {
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar-center button:hover {
+    background-color: #555;
+  }
+
+  .navbar-center label {
+    background-color: #555;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .navbar-center label:hover {
+    background-color: #333;
+  }
   
   .magic-icon {
     font-size: 20px;

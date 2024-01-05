@@ -57,12 +57,20 @@ public class CardListCard {
     public void setQtdCard(Integer qtdCard) {
         this.qtdCard = qtdCard;
     }
-    /* 
-    public Set<Card> getCards() {
-        return cards;
+    
+    public ListCard getListCard() {
+        return listCard;
     }
 
-    public void setCards(Set<Card> cards) {
-        this.cards = cards;
-    }*/
+    public void setListCard(ListCard listCard) {
+        this.listCard = listCard;
+    }
+
+     public Card getCard() {
+        return card;
+    }
+
+    public void setCard(Card card) {
+        this.card = card;
+    }
 }

@@ -5,21 +5,36 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.magicAPI.projectListMagic.dao.CardListCardRepository;
+import br.com.magicAPI.projectListMagic.model.BtnPageResponse;
 import br.com.magicAPI.projectListMagic.model.Card;
 import br.com.magicAPI.projectListMagic.model.CardListCard;
+import br.com.magicAPI.projectListMagic.model.CardResponse;
 import br.com.magicAPI.projectListMagic.model.ListCard;
+import br.com.magicAPI.projectListMagic.service.CardService;
+import br.com.magicAPI.projectListMagic.service.ListCardService;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/CardListCard")
 public class CardListCardController {
      @Autowired
     private CardListCardRepository cardListCardRepository;
+
+    @Autowired
+    private CardService cardService;
+
+    @Autowired
+    private ListCardService listCardService;
 
     @GetMapping
     public List<CardListCard> getCardsAll() {
@@ -33,56 +48,46 @@ public class CardListCardController {
     }
 
     @GetMapping("/infoTxt/{listCardId}")
-    public Object getBtnPage(@PathVariable Integer listCardId) {
-
-        ListCardController ctrListCard = new ListCardController();
-        CardController ctrCard = new CardController();
-
-        Optional<ListCard> listCard = ctrListCard.getListCard(listCardId);
+    public ResponseEntity<BtnPageResponse> getBtnPage(@PathVariable Integer listCardId) {
+        Optional<ListCard> listCard = listCardService.getListCard(listCardId);
         List<Card> cards = new ArrayList<>();
-
         List<CardListCard> listCards = getCardsByListCardId(listCard.get().getId());
 
         for (CardListCard cardListCard : listCards) {
             Integer cardId = cardListCard.getId().getId_card();
-            Optional<Card> optionalCard = ctrCard.getCardById(cardId);
+            Optional<Card> optionalCard = cardService.getCardById(cardId);
 
             optionalCard.ifPresent(cards::add);
         }
 
-        StringBuilder jsonBuilder = new StringBuilder();
-
-        jsonBuilder.append("{");
-        jsonBuilder.append("\"Color\":").append(listCard.get().getColor()).append(",");
-        jsonBuilder.append("\"Name\":").append(listCard.get().getName()).append(",");
-        jsonBuilder.append("\"Cards\":[").append("\"");
+        List<CardResponse> cardResponses = new ArrayList<>();
 
         for (Card card : cards) {
-            
             Integer qtd = listCards.stream()
                 .filter(x -> x.getId().getId_card() == card.getId())
-                .mapToInt(arg0 -> arg0.getQtdCard()) // Obtenha o valor de qtd_card
+                .mapToInt(CardListCard::getQtdCard)
                 .sum();
-                          
 
-            jsonBuilder.append("{");
-            jsonBuilder.append("\"Name\":").append(card.getName()).append(",");
-            jsonBuilder.append("\"Qtd\":").append(qtd).append("\"");
-            jsonBuilder.append("},");
-            
+            cardResponses.add(new CardResponse(card.getName(), qtd));
         }
 
-        // Remova a vírgula extra após o último objeto
-        if (!cards.isEmpty()) {
-            jsonBuilder.deleteCharAt(jsonBuilder.length() - 1);
-        }
+        BtnPageResponse response = new BtnPageResponse();
+        response.setColor(listCard.get().getColor());
+        response.setName(listCard.get().getName());
+        response.setCards(cardResponses);
 
-        jsonBuilder.append("]}");
-        
-
-        
-
-        return jsonBuilder.toString();
+        return ResponseEntity.ok(response);
     }
-    
+
+    @PostMapping
+    public CardListCard insertCardListCard(@RequestBody CardListCard cardListCard){
+
+        Card card = cardService.getCardById(cardListCard.getId().getId_card()).orElse(null);
+        ListCard listCard = listCardService.getListCard(cardListCard.getId().getId_list_card()).orElse(null);
+
+        cardListCard.setCard(card);
+        cardListCard.setListCard(listCard);
+
+        return cardListCardRepository.save(cardListCard);
+    }
 }
