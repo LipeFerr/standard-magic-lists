@@ -1,7 +1,7 @@
 import { insertCard } from './CardService.js';
 import { insertListCard } from './ListCardsService.js';
 import { insertCardListCard } from './CardListCardService.js'
-import { loadListCards } from './main.js';
+import { loadListCards, clearListCards } from './main.js';
 
 export function downloadTxtFile(data) {
     const filename = `${data.name.replace(/\s/g, '_')}_${data.color}.txt`;
@@ -34,6 +34,7 @@ export function downloadTxtFile(data) {
         try {
           // Aguarde a conclusão do processamento do arquivo antes de recarregar os botões
           await processFileContent(fileContent);
+          clearListCards();
           loadListCards();
           alert('uploading successful');
         } catch (error) {

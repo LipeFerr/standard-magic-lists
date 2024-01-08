@@ -75,3 +75,17 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+export function clearListCards() {
+  // Seleciona todos os botões dentro das divs com a classe "button-list"
+  const buttons = document.querySelectorAll('.button-list button');
+
+  // Para cada botão encontrado
+  buttons.forEach(button => {
+    // Remove o botão
+    button.remove();
+  });
+}
+
+
+
+
