@@ -17,6 +17,7 @@ public class CardListCard {
     @Column(name = "qtd_card", length = 100, nullable = true)
     private Integer qtdCard;
 
+
     @ManyToOne
     @MapsId("id_list_card")
     private ListCard listCard;
